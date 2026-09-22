@@ -1,13 +1,24 @@
 import { WORDS } from "./words.js";
+import { WORDS4 } from "./words4.js";
+import { WORDS6 } from "./words6.js";
 
 const NUMBER_OF_GUESSES = 6;
 const STARTING_SECONDS = 60;
 const BONUS_SECONDS_PER_GREEN = 3;
 
+const WORD_LISTS = {
+    4: WORDS4,
+    5: WORDS,
+    6: WORDS6
+};
+
+let wordLength = 5;
+let wordList = WORD_LISTS[wordLength];
+
 let guessesRemaining = NUMBER_OF_GUESSES;
 let currentGuess = [];
 let nextLetter = 0;
-let rightGuessString = WORDS[Math.floor(Math.random() * WORDS.length)];
+let rightGuessString = pickWord();
 
 let timeRemaining = STARTING_SECONDS;
 let timerInterval = null;
@@ -15,14 +26,19 @@ let gameOver = false;
 
 console.log(rightGuessString);
 
-function initBoard() {
+function pickWord() {
+    return wordList[Math.floor(Math.random() * wordList.length)];
+}
+
+function buildBoard() {
     let board = document.getElementById("game-board");
+    board.innerHTML = "";
 
     for (let i = 0; i < NUMBER_OF_GUESSES; i++) {
         let row = document.createElement("div");
         row.className = "letter-row";
 
-        for (let j = 0; j < 5; j++) {
+        for (let j = 0; j < wordLength; j++) {
             let box = document.createElement("div");
             box.className = "letter-box";
             row.appendChild(box);
@@ -30,6 +46,39 @@ function initBoard() {
 
         board.appendChild(row);
     }
+}
+
+function resetKeyboard() {
+    for (const elem of document.getElementsByClassName("keyboard-button")) {
+        elem.style.backgroundColor = "";
+    }
+}
+
+function setActiveLengthButton() {
+    for (const btn of document.getElementsByClassName("length-button")) {
+        btn.classList.toggle("active", Number(btn.dataset.length) === wordLength);
+    }
+}
+
+function startNewGame(newLength) {
+    stopTimer();
+
+    wordLength = newLength;
+    wordList = WORD_LISTS[wordLength];
+    rightGuessString = pickWord();
+
+    guessesRemaining = NUMBER_OF_GUESSES;
+    currentGuess = [];
+    nextLetter = 0;
+    gameOver = false;
+    timeRemaining = STARTING_SECONDS;
+
+    buildBoard();
+    resetKeyboard();
+    setActiveLengthButton();
+    startTimer();
+
+    console.log(rightGuessString);
 }
 
 function updateTimerDisplay() {
@@ -92,7 +141,7 @@ function shadeKeyBoard(letter, color) {
 }
 
 function deleteLetter() {
-    let row = document.getElementsByClassName("letter-row")[6 - guessesRemaining];
+    let row = document.getElementsByClassName("letter-row")[NUMBER_OF_GUESSES - guessesRemaining];
     let box = row.children[nextLetter - 1];
     box.textContent = "";
     box.classList.remove("filled-box");
@@ -101,7 +150,7 @@ function deleteLetter() {
 }
 
 function checkGuess() {
-    let row = document.getElementsByClassName("letter-row")[6 - guessesRemaining];
+    let row = document.getElementsByClassName("letter-row")[NUMBER_OF_GUESSES - guessesRemaining];
     let guessString = "";
     let rightGuess = Array.from(rightGuessString);
 
@@ -109,21 +158,21 @@ function checkGuess() {
         guessString += val;
     }
 
-    if (guessString.length != 5) {
+    if (guessString.length != wordLength) {
         toastr.error("Not enough letters!");
         return;
     }
 
-    if (!WORDS.includes(guessString)) {
+    if (!wordList.includes(guessString)) {
         toastr.error("Word not in list!");
         return;
     }
 
-    var letterColor = ["gray", "gray", "gray", "gray", "gray"];
+    var letterColor = new Array(wordLength).fill("gray");
 
     //check green
     let greenCount = 0;
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < wordLength; i++) {
         if (rightGuess[i] == currentGuess[i]) {
             letterColor[i] = "green";
             rightGuess[i] = "#";
@@ -138,11 +187,11 @@ function checkGuess() {
 
     //check yellow
     //checking guess letters
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < wordLength; i++) {
         if (letterColor[i] == "green") continue;
 
         //checking right letters
-        for (let j = 0; j < 5; j++) {
+        for (let j = 0; j < wordLength; j++) {
             if (rightGuess[j] == currentGuess[i]) {
                 letterColor[i] = "yellow";
                 rightGuess[j] = "#";
@@ -150,7 +199,7 @@ function checkGuess() {
         }
     }
 
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < wordLength; i++) {
         let box = row.children[i];
         let delay = 250 * i;
         setTimeout(() => {
@@ -183,12 +232,12 @@ function checkGuess() {
 }
 
 function insertLetter(pressedKey) {
-    if (nextLetter === 5) {
+    if (nextLetter === wordLength) {
         return;
     }
     pressedKey = pressedKey.toLowerCase();
 
-    let row = document.getElementsByClassName("letter-row")[6 - guessesRemaining];
+    let row = document.getElementsByClassName("letter-row")[NUMBER_OF_GUESSES - guessesRemaining];
     let box = row.children[nextLetter];
     animateCSS(box, "pulse");
     box.textContent = pressedKey;
@@ -256,5 +305,21 @@ document.getElementById("keyboard-cont").addEventListener("click", (e) => {
     document.dispatchEvent(new KeyboardEvent("keyup", { key: key }));
 });
 
-initBoard();
+document.getElementById("length-cont").addEventListener("click", (e) => {
+    const target = e.target;
+
+    if (!target.classList.contains("length-button")) {
+        return;
+    }
+
+    const newLength = Number(target.dataset.length);
+    if (newLength === wordLength) {
+        return;
+    }
+
+    startNewGame(newLength);
+});
+
+buildBoard();
+setActiveLengthButton();
 startTimer();

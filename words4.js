@@ -1,0 +1,21 @@
+export const WORDS4 = [
+    "able", "acid", "aged", "area", "army", "away", "baby", "back", "ball", "band",
+    "bank", "base", "bath", "bear", "beat", "been", "beer", "bell", "belt", "best",
+    "bill", "bird", "blow", "blue", "boat", "body", "bond", "bone", "book", "born",
+    "boss", "both", "bowl", "burn", "bush", "busy", "call", "calm", "came", "camp",
+    "card", "care", "case", "cash", "cast", "cell", "chip", "city", "club", "coal",
+    "coat", "code", "cold", "come", "cook", "cool", "copy", "core", "cost", "crew",
+    "crop", "dark", "data", "date", "dawn", "days", "dead", "deal", "dear", "debt",
+    "deep", "deny", "desk", "dial", "dirt", "disc", "disk", "does", "done", "door",
+    "down", "draw", "drop", "drug", "dual", "dust", "duty", "each", "earn", "ease",
+    "east", "easy", "edge", "else", "even", "ever", "evil", "exit", "face", "fact",
+    "fail", "fair", "fall", "fame", "farm", "fast", "fate", "fear", "feed", "feel",
+    "feet", "fell", "felt", "file", "fill", "film", "find", "fine", "fire", "firm",
+    "fish", "five", "flat", "flow", "food", "foot", "form", "fort", "four", "free",
+    "from", "fuel", "full", "fund", "gain", "game", "gate", "gave", "gear", "gift",
+    "girl", "give", "glad", "goal", "goes", "gold", "golf", "gone", "good", "gray",
+    "grew", "grey", "grow", "hair", "half", "hall", "hand", "hang", "hard", "harm",
+    "hate", "have", "head", "hear", "heat", "held", "help", "here", "hero", "high",
+    "hill", "hire", "hold", "hole", "holy", "home", "hope", "host", "hour", "huge",
+    "hung", "hunt", "hurt"
+]; 
