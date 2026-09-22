@@ -2,6 +2,17 @@ h1 {
     text-align: center;
 }
 
+#timer-cont {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+#timer-cont.time-low {
+    color: red;
+}
+
 #game-board {
     display: flex;
     align-items: center;

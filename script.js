@@ -1,10 +1,17 @@
 import { WORDS } from "./words.js";
 
 const NUMBER_OF_GUESSES = 6;
+const STARTING_SECONDS = 60;
+const BONUS_SECONDS_PER_GREEN = 3;
+
 let guessesRemaining = NUMBER_OF_GUESSES;
 let currentGuess = [];
 let nextLetter = 0;
 let rightGuessString = WORDS[Math.floor(Math.random() * WORDS.length)];
+
+let timeRemaining = STARTING_SECONDS;
+let timerInterval = null;
+let gameOver = false;
 
 console.log(rightGuessString);
 
@@ -23,6 +30,47 @@ function initBoard() {
 
         board.appendChild(row);
     }
+}
+
+function updateTimerDisplay() {
+    let timerEl = document.getElementById("timer");
+    timerEl.textContent = timeRemaining;
+
+    let timerCont = document.getElementById("timer-cont");
+    if (timeRemaining <= 10) {
+        timerCont.classList.add("time-low");
+    } else {
+        timerCont.classList.remove("time-low");
+    }
+}
+
+function startTimer() {
+    updateTimerDisplay();
+    timerInterval = setInterval(() => {
+        timeRemaining -= 1;
+        updateTimerDisplay();
+
+        if (timeRemaining <= 0) {
+            endGameOnTimeout();
+        }
+    }, 1000);
+}
+
+function stopTimer() {
+    clearInterval(timerInterval);
+}
+
+function addBonusTime(seconds) {
+    timeRemaining += seconds;
+    updateTimerDisplay();
+}
+
+function endGameOnTimeout() {
+    stopTimer();
+    gameOver = true;
+    guessesRemaining = 0;
+    toastr.error("Time's up! Game over!");
+    toastr.info(`The right word was: "${rightGuessString}"`);
 }
 
 function shadeKeyBoard(letter, color) {
@@ -74,11 +122,18 @@ function checkGuess() {
     var letterColor = ["gray", "gray", "gray", "gray", "gray"];
 
     //check green
+    let greenCount = 0;
     for (let i = 0; i < 5; i++) {
         if (rightGuess[i] == currentGuess[i]) {
             letterColor[i] = "green";
             rightGuess[i] = "#";
+            greenCount += 1;
         }
+    }
+
+    if (greenCount > 0) {
+        addBonusTime(greenCount * BONUS_SECONDS_PER_GREEN);
+        toastr.success(`+${greenCount * BONUS_SECONDS_PER_GREEN}s bonus!`);
     }
 
     //check yellow
@@ -108,6 +163,8 @@ function checkGuess() {
     }
 
     if (guessString === rightGuessString) {
+        stopTimer();
+        gameOver = true;
         toastr.success("You guessed right! Game over!");
         guessesRemaining = 0;
         return;
@@ -117,6 +174,8 @@ function checkGuess() {
         nextLetter = 0;
 
         if (guessesRemaining === 0) {
+            stopTimer();
+            gameOver = true;
             toastr.error("You've run out of guesses! Game over!");
             toastr.info(`The right word was: "${rightGuessString}"`);
         }
@@ -159,7 +218,7 @@ const animateCSS = (element, animation, prefix = "animate__") =>
     });
 
 document.addEventListener("keyup", (e) => {
-    if (guessesRemaining === 0) {
+    if (guessesRemaining === 0 || gameOver) {
         return;
     }
 
@@ -198,3 +257,4 @@ document.getElementById("keyboard-cont").addEventListener("click", (e) => {
 });
 
 initBoard();
+startTimer();
